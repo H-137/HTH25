@@ -70,7 +70,8 @@ export default function Dashboard() {
             </Widget>
 
             {/* Temperature Trends */}
-            <Widget className='h-[350px]'
+            <div className='h-[350px]'>
+            <Widget
               modalChildren={
                 <p>
                   EXPLAIN WHERE THE TEMP DATA IS BEING SOURCED FROM EXPLAIN HOW
@@ -88,6 +89,7 @@ export default function Dashboard() {
                 coords={location ?? undefined}
               />
             </Widget>
+            </div>
 
             {/* Satellite Timelapse */}
             <motion.div
