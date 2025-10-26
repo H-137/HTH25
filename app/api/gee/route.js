@@ -5,6 +5,12 @@ const { GoogleAuth } = require("google-auth-library");
 import { NextResponse } from "next/server";
 
 let initialized = false;
+console.log({
+  EE_PROJECT_ID: process.env.EE_PROJECT_ID,
+  EE_CLIENT_EMAIL: process.env.EE_CLIENT_EMAIL,
+  EE_PRIVATE_KEY: process.env.EE_PRIVATE_KEY?.slice(0, 10) + "…",
+});
+
 
 // Build service account from environment variables exactly like your JSON
 function getServiceAccount() {
@@ -162,7 +168,7 @@ let images = l5.merge(l8);
 
     return NextResponse.json({ error: 'Missing mode or ts parameter' }, { status: 400 });
   } catch (err) {
-    console.error(err);
+    console.log("Error initializing EE:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
