@@ -23,6 +23,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
   const [apiLoading, setApiLoading] = useState(false)
   const [apiError, setApiError] = useState<string>('')
 
+  // helper function to get time date format: Janurary 01, 1940
   function formatDate(isoDate: string) {
   const date = new Date(isoDate)
   return date.toLocaleDateString("en-US", {
@@ -32,6 +33,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
   })
 }
 
+  // React lib things
   const options = {
     responsive: true,
     plugins: {
@@ -72,6 +74,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
     setApiError('')
     ;(async () => {
       try {
+        //actual API call lives here
         const q = new URLSearchParams({ lat: String(coords.lat), long: String(coords.long) })
         const res = await fetch(`/api/historical_temp?${q.toString()}`)
         const data = await res.json()
@@ -101,6 +104,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
     })()
   }, [coords, cacheKey])
 
+  //Matt's function where he averages the 5 years before and after the current year
   function movingAverage(series: number[], windowSize: number) {
     return series.map((_, idx, arr) => {
       const start = Math.max(0, idx - Math.floor(windowSize / 2))
@@ -110,6 +114,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
     })
   }
 
+  // if no coords, placeholder text
   if (!coords) return <p className="text-sm text-gray-500">Pick a location to see the graph</p>
 
   const labels = yearly.map(p => p.year)
@@ -117,6 +122,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
   const avgSeries = average ? movingAverage(mainSeries, 11) : []
 
   return (
+    // front-end Matt things
     <div>
       {apiLoading && <p>Loading yearly data</p>}
       {!apiLoading && apiError && <p>{apiError}</p>}
