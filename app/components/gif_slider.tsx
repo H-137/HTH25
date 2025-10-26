@@ -35,9 +35,8 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
               image.onload = () => {
                 loadedImages.push({ img: image, year: res.data.year });
                 loadedCount++;
+                setImages(loadedImages.sort((a, b) => a.year - b.year));
                 if (loadedCount === timestamps.length) {
-                  // All images are loaded
-                  setImages(loadedImages.sort((a, b) => a.year - b.year));
                   setLoading(false);
                 }
               };

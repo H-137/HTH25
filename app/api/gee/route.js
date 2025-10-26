@@ -130,12 +130,13 @@ let images = l5.merge(l8);
     stats.getNumber('SR_B1_p98')
   ];
 
+
   const scaled = img.select(['SR_B3','SR_B2','SR_B1'])
     .subtract(ee.Image.constant(minVals))
     .divide(ee.Image.constant(maxVals).subtract(ee.Image.constant(minVals)))
     .multiply(255)
     .clamp(0, 255)
-    .toUint8();
+    .toUint8(); // integer 0–255
 
   const thumb = await scaled.getDownloadURL({
     region: region,
