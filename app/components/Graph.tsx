@@ -104,7 +104,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
     })()
   }, [coords, cacheKey])
 
-  //Matt's function where he averages the 5 years before and after the current year
+  // Matt's function where he averages the 5 years before and after the current year
   function movingAverage(series: number[], windowSize: number) {
     return series.map((_, idx, arr) => {
       const start = Math.max(0, idx - Math.floor(windowSize / 2))
