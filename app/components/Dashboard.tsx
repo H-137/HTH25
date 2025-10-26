@@ -71,7 +71,7 @@ export default function Dashboard() {
             <h1 className="font-bold text-4xl bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-center text-transparent">
                 Temperature Trends
             </h1>
-            <Graph title="Global temperature trends" average={true} />
+            <Graph title="Yearly average temperature" average={true} coords={location ?? undefined}/>
           </Widget>
         </motion.div>
         <motion.div layout transition={{ duration: 0.8}}>
