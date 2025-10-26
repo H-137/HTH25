@@ -5,6 +5,7 @@ import Widget from "./Widget";
 import Search from "./Search";
 import Gif from "./gif_slider";
 import Storm from "./Storm";
+import Facts from "./Facts";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -126,6 +127,8 @@ export default function Dashboard() {
                 location={location}
               />
             </Widget>
+            {/* Quick Facts */}
+            <Facts location={location} />
           </motion.div>
         )}
       </AnimatePresence>
