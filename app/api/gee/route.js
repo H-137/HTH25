@@ -1,3 +1,4 @@
+process.env.NODE_XMLHTTPREQUEST_SYNC_PATH = "/tmp";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const ee = require("@google/earthengine");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
