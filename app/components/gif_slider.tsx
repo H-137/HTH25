@@ -23,7 +23,7 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
         const metaRes = await axios.get(`/api/gee?lat=${target.lat}&lng=${target.long}&mode=meta`);
         const { timestamps } = metaRes.data;
 
-        for (let ts of timestamps) {
+        for (const ts of timestamps) {
           axios
             .get(`/api/gee?ts=${ts}&lat=${target.lat}&lng=${target.long}`)
             .then(res => {
