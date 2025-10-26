@@ -23,19 +23,11 @@ export default function Widget({
       <motion.div
         layout
         ref={containerRef}
-        className="flex flex-col p-4 rounded shadow-xl bg-white cursor-pointer overflow-hidden"
+        className="flex flex-col p-4 rounded border border-gray-200 shadow-xl bg-white cursor-pointer overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
         onClick={() => !showModal && setShowModal(true)}
       >
         {title && <h1 className="text-xl font-semibold mb-2 text-center">{title}</h1>}
         {children}
-        {modalChildren && !showModal && (
-          <button
-            className="mt-4 px-4 py-2 w-40 rounded bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none active:scale-95"
-            onClick={(e) => { e.stopPropagation(); setShowModal(true); }}
-          >
-            Learn More
-          </button>
-        )}
       </motion.div>
 
       {/* Modal Overlay */}

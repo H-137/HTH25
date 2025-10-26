@@ -79,8 +79,8 @@ export default function Search({ setLocation }: { setLocation: (location: { lat:
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <input className="p-2 border rounded w-full" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)}/>
-        <input list="state-options" className="p-2 border rounded w-28" placeholder="State, e.g., MA" value={stateInit} maxLength={2} onChange={(e) => setStateInit(e.target.value.toUpperCase())}/>
+        <input className="p-2 border border-gray-300 rounded w-full" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)}/>
+        <input list="state-options" className="p-2 border border-gray-300 rounded w-28" placeholder="State, e.g., MA" value={stateInit} maxLength={2} onChange={(e) => setStateInit(e.target.value.toUpperCase())}/>
         <datalist id="state-options">
           {STATE_LIST.map((s) => (
             <option key={s.abbr} value={s.abbr} label={s.label} />
