@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,7 +26,9 @@ export default function Widget({
         className="flex flex-col p-4 rounded border border-gray-200 shadow-xl bg-white cursor-pointer overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
         onClick={() => !showModal && setShowModal(true)}
       >
-        {title && <h1 className="text-xl font-semibold mb-2 text-center">{title}</h1>}
+        {title && (
+          <h1 className="text-xl font-semibold mb-2 text-center">{title}</h1>
+        )}
         {children}
       </motion.div>
 
