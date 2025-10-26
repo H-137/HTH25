@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,8 +11,8 @@ import {
   Legend,
   Filler,
   ChartData,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -27,16 +27,15 @@ ChartJS.register(
 // Module-level cache
 const stormDataCache = new Map<
   string,
-  { data: ChartData<'bar'> | null; error: string | null }
+  { data: ChartData<"bar"> | null; error: string | null }
 >();
 
 interface StormProps {
   location: { lat: number; long: number } | null;
 }
 
-export default function Storm({ location }: StormProps ) {
-  
-  const [chartData, setChartData] = useState<ChartData<'bar'> | null>(null);
+export default function Storm({ location }: StormProps) {
+  const [chartData, setChartData] = useState<ChartData<"bar"> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -68,7 +67,7 @@ export default function Storm({ location }: StormProps ) {
       setError(null);
       setLoading(true);
       setChartData(null); // Clear old chart
-      
+
       // This is the object we'll build *as* the stream comes in
       const countsPerYear: { [year: string]: number } = {};
 
@@ -79,18 +78,18 @@ export default function Storm({ location }: StormProps ) {
         });
 
         if (!res.ok) {
-           const errorData = await res.json();
-           throw new Error(errorData.error || 'Failed to start data stream');
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to start data stream");
         }
 
         if (!res.body) {
-          throw new Error('Response body is missing');
+          throw new Error("Response body is missing");
         }
 
         // Set up the stream reader
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = '';
+        let buffer = "";
 
         while (true) {
           const { done, value } = await reader.read();
@@ -98,23 +97,23 @@ export default function Storm({ location }: StormProps ) {
 
           // Add new chunk to buffer and find newlines
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          
+          const lines = buffer.split("\n");
+
           // The last line might be incomplete, so save it for the next chunk
-          buffer = lines.pop() || '';
+          buffer = lines.pop() || "";
 
           for (const line of lines) {
-            if (line.trim() === '') continue;
+            if (line.trim() === "") continue;
             try {
               const chunk = JSON.parse(line);
-              
+
               // Check for an error message from the stream
               if (chunk.error) {
                 throw new Error(chunk.error);
               }
 
               // Add the year's data
-              if (chunk.year && typeof chunk.count === 'number') {
+              if (chunk.year && typeof chunk.count === "number") {
                 countsPerYear[chunk.year] = chunk.count;
 
                 // --- THIS IS THE FIX ---
@@ -126,10 +125,10 @@ export default function Storm({ location }: StormProps ) {
                   labels: years,
                   datasets: [
                     {
-                      label: 'Number of Rainy Days',
+                      label: "Number of Rainy Days",
                       data: counts,
-                      backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                      borderColor: 'rgba(75, 192, 192, 1)',
+                      backgroundColor: "rgba(75, 192, 192, 0.5)",
+                      borderColor: "rgba(75, 192, 192, 1)",
                       borderWidth: 1,
                       fill: true,
                     },
@@ -140,16 +139,16 @@ export default function Storm({ location }: StormProps ) {
                 // --- END OF FIX ---
               }
             } catch (e) {
-              console.error('Failed to parse stream chunk:', line);
+              console.error("Failed to parse stream chunk:", line);
             }
           }
         }
-        
+
         // --- Stream is finished ---
-        
+
         // Final check for data and caching
         if (Object.keys(countsPerYear).length === 0) {
-          throw new Error('No storm data was found for this location.');
+          throw new Error("No storm data was found for this location.");
         }
 
         // Re-build the final data one last time to ensure it's complete for the cache
@@ -159,26 +158,25 @@ export default function Storm({ location }: StormProps ) {
           labels: years,
           datasets: [
             {
-              label: 'Number of Storm Event Days',
+              label: "Number of Storm Event Days",
               data: counts,
-              backgroundColor: 'rgba(75, 192, 192, 0.5)',
-              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: "rgba(75, 192, 192, 0.5)",
+              borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
               fill: true,
             },
           ],
         };
-        
+
         // Cache the final, successful result
         stormDataCache.set(locationKey, { data: finalChartData, error: null });
-
       } catch (err) {
-        if ((err as Error).name === 'AbortError') {
-          console.log('Fetch aborted');
+        if ((err as Error).name === "AbortError") {
+          console.log("Fetch aborted");
           return;
         }
         const errorMessage =
-          err instanceof Error ? err.message : 'An unknown error occurred.';
+          err instanceof Error ? err.message : "An unknown error occurred.";
         setError(errorMessage);
         // Cache the error
         stormDataCache.set(locationKey, { data: null, error: errorMessage });
@@ -201,21 +199,21 @@ export default function Storm({ location }: StormProps ) {
       duration: 200, // Faster animation to feel more responsive during streaming
     },
     plugins: {
-      legend: { position: 'top' as const },
-      title: { display: true, text: 'Rainy Days Per Year' },
+      legend: { position: "top" as const },
+      title: { display: true, text: "Rainy Days Per Year" },
     },
     scales: {
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Days with Rain > 1 mm',
+          text: "Days with Rain > 1 mm",
         },
       },
       x: {
         title: {
           display: true,
-          text: 'Year',
+          text: "Year",
         },
       },
     },
@@ -230,11 +228,11 @@ export default function Storm({ location }: StormProps ) {
   // Show loading *until* the first chunk of data arrives
   if (loading && !chartData)
     return <p className="text-center">Loading storm data...</p>;
-  
+
   if (error) return <p className="text-center text-red-600">{error}</p>;
-  
+
   // Show the chart as soon as we have data, even if still "loading" (streaming)
-  if (!chartData) return null; 
+  if (!chartData) return null;
 
   return (
     <div className="w-full max-w-4xl p-4 mx-auto">

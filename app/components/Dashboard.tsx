@@ -9,9 +9,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Dashboard() {
-  const [location, setLocation] = useState<{ lat: number; long: number } | null>(
-    null
-  );
+  const [location, setLocation] = useState<{
+    lat: number;
+    long: number;
+  } | null>(null);
 
   return (
     <motion.div
@@ -70,25 +71,25 @@ export default function Dashboard() {
             </Widget>
 
             {/* Temperature Trends */}
-            <div className='h-[350px]'>
-            <Widget
-              modalChildren={
-                <p>
-                  EXPLAIN WHERE THE TEMP DATA IS BEING SOURCED FROM EXPLAIN HOW
-                  THE MOVING AVERAGE WORKS AND WHY (SOLAR CYCLES) EXPLAIN THE AI
-                  PREDICTION AND THE PARAMETERS THAT ARE USED
-                </p>
-              }
-            >
-              <h1 className="font-bold text-3xl bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-center text-transparent">
-                Temperature Trends
-              </h1>
-              <Graph
-                title="Yearly average temperature"
-                average={true}
-                coords={location ?? undefined}
-              />
-            </Widget>
+            <div className="h-[350px]">
+              <Widget
+                modalChildren={
+                  <p>
+                    EXPLAIN WHERE THE TEMP DATA IS BEING SOURCED FROM EXPLAIN
+                    HOW THE MOVING AVERAGE WORKS AND WHY (SOLAR CYCLES) EXPLAIN
+                    THE AI PREDICTION AND THE PARAMETERS THAT ARE USED
+                  </p>
+                }
+              >
+                <h1 className="font-bold text-3xl bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-center text-transparent">
+                  Temperature Trends
+                </h1>
+                <Graph
+                  title="Yearly average temperature"
+                  average={true}
+                  coords={location ?? undefined}
+                />
+              </Widget>
             </div>
 
             {/* Satellite Timelapse */}
