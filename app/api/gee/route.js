@@ -1,12 +1,15 @@
-import { NextResponse } from 'next/server';
 import ee from '@google/earthengine';
 import { GoogleAuth } from 'google-auth-library';
+import { getEECredentials } from '../../utils/credentials';
+import { NextResponse } from 'next/server';
 
-const serviceAccount = JSON.parse(process.env.EE_SERVICE_ACCOUNT_KEY);
 let initialized = false;
 
-async function initEE() {
+export async function initEE() {
   if (initialized) return;
+
+  const serviceAccount = getEECredentials();
+  if (!serviceAccount) throw new Error('EE credentials not found');
 
   const auth = new GoogleAuth({
     credentials: serviceAccount,
@@ -26,6 +29,7 @@ async function initEE() {
     );
   });
 }
+
 
 export async function GET(req) {
   try {
