@@ -72,14 +72,17 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
   return (
     <div className="p-4 flex flex-col items-center">
       <div className="w-[400px] h-[400px] border border-gray-300 mb-4 relative">
-        <img
-          src={images[currentIndex].img.src}
-          alt={`Year ${images[currentIndex].year}`}
-          className="w-full h-full object-cover transition-opacity duration-500"
-        />
-        <p className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 p-1 rounded">
+        {images[currentIndex] && (
+          <img
+            src={images[currentIndex].img.src}
+            alt={`Year ${images[currentIndex].year}`}
+            className="w-full h-full object-cover transition-opacity duration-500"
+          />
+)}
+
+        { images[currentIndex] && (<p className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 p-1 rounded">
           Year: {images[currentIndex].year}
-        </p>
+        </p>) }
       </div>
 
       <input

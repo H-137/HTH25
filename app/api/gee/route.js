@@ -1,36 +1,43 @@
-import os from 'os';
-process.env.TMPDIR = '/tmp';
-
-import ee from '@google/earthengine';
-import { GoogleAuth } from 'google-auth-library';
-import { getEECredentials } from '../../utils/credentials';
-import { NextResponse } from 'next/server';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const ee = require("@google/earthengine");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { GoogleAuth } = require("google-auth-library");
+import { NextResponse } from "next/server";
 
 let initialized = false;
 
-export async function initEE() {
+// Build service account from environment variables exactly like your JSON
+function getServiceAccount() {
+  return {
+    type: process.env.EE_TYPE,
+    project_id: process.env.EE_PROJECT_ID,
+    private_key_id: process.env.EE_PRIVATE_KEY_ID,
+    private_key: process.env.EE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    client_email: process.env.EE_CLIENT_EMAIL,
+    client_id: process.env.EE_CLIENT_ID,
+    auth_uri: process.env.EE_AUTH_URI,
+    token_uri: process.env.EE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.EE_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.EE_CLIENT_X509_CERT_URL,
+    universe_domain: process.env.EE_UNIVERSE_DOMAIN,
+  };
+}
+
+async function initEE() {
   if (initialized) return;
 
-  const serviceAccount = getEECredentials();
-  if (!serviceAccount) throw new Error('EE credentials not found');
+  const serviceAccount = getServiceAccount();
 
-  const auth = new GoogleAuth({
-    credentials: serviceAccount,
-    scopes: ['https://www.googleapis.com/auth/earthengine'],
-  });
-
+  // Authenticate via private key (serverless-safe)
   await new Promise((resolve, reject) => {
     ee.data.authenticateViaPrivateKey(
       serviceAccount,
-      () => {
-        ee.initialize(null, null, () => {
-          initialized = true;
-          resolve();
-        }, reject);
-      },
-      reject
+      () => ee.initialize(null, null, resolve, reject),
+      (err) => reject(err)
     );
   });
+
+  initialized = true;
 }
 
 
