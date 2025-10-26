@@ -1,3 +1,6 @@
+import os from 'os';
+process.env.TMPDIR = '/tmp';
+
 import ee from '@google/earthengine';
 import { GoogleAuth } from 'google-auth-library';
 import { getEECredentials } from '../../utils/credentials';
