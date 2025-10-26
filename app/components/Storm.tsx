@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
   Filler,
+  ChartData,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -26,7 +27,7 @@ ChartJS.register(
 // Module-level cache
 const stormDataCache = new Map<
   string,
-  { data: { [year: string]: number } | null; error: string | null }
+  { data: ChartData<'bar'> | null; error: string | null }
 >();
 
 interface StormProps {
@@ -34,7 +35,8 @@ interface StormProps {
 }
 
 export default function Storm({ location }: StormProps ) {
-  const [chartData, setChartData] = useState<StormProps | null>(null);
+  
+  const [chartData, setChartData] = useState<ChartData<'bar'> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
