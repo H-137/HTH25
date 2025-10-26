@@ -1,6 +1,8 @@
-'use client'
-import { Line } from 'react-chartjs-2'
-import { useEffect, useMemo, useState } from 'react'
+'use client';
+
+import { Line } from "react-chartjs-2";
+import Papa from 'papaparse';
+import { useEffect, useMemo, useState } from "react"; // CHANGED: added useMemo
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,42 +11,64 @@ import {
   LineElement,
   Title,
   Legend,
-} from 'chart.js'
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Legend)
+ChartJS.register(
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  CategoryScale,
+  Legend
+);
 
 type Coords = { lat: number, long: number }
-
 export default function Graph({ title, average, coords }: { title: string, average: boolean, coords?: Coords }) {
-  type YearlyPoint = { year: number, avg: number }
+  type ClimateDataRow = {
+    Year: number;
+    "Annual Average Temperature (F)": number;
+  };
 
+  // CSV fallback state, used only when coords is undefined
+  const [csvData, setCsvData] = useState<ClimateDataRow[]>([]);
+  const [csvLoading, setCsvLoading] = useState(true);
+
+  // API-driven yearly data
+  type YearlyPoint = { year: number, avg: number }
   const [yearly, setYearly] = useState<YearlyPoint[]>([])
   const [range, setRange] = useState<{ start: string, end: string }>()
   const [apiLoading, setApiLoading] = useState(false)
-  const [apiError, setApiError] = useState<string>('')
+  const [apiError, setApiError] = useState<string>("")
 
-  // helper function to get time date format: Janurary 01, 1940
-  function formatDate(isoDate: string) {
-  const date = new Date(isoDate)
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  })
-}
-
-  // React lib things
   const options = {
     responsive: true,
     plugins: {
       legend: { position: 'top' as const },
       title: {
         display: true,
-        text: range ? `${title}  •  ${formatDate(range.start)} to ${formatDate(range.end)}`
-        : title,
+        // show range when we are plotting the city series
+        text: range ? `${title}  •  ${range.start} to ${range.end}` : title,
       },
     },
-  }
+  };
+
+  // fallback CSV load, runs once
+  useEffect(() => {
+    if (coords) return  // NEW: skip CSV when we have coords
+    Papa.parse('/static/temps.csv', {
+      download: true,
+      header: true,
+      dynamicTyping: true,
+      complete: (results) => {
+        setCsvData(results.data as ClimateDataRow[]);
+        setCsvLoading(false);
+      },
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
+        setCsvLoading(false);
+      }
+    });
+  }, [coords]); // depend on coords to skip
 
   // localStorage cache key for the given coords
   const cacheKey = useMemo(() => {
@@ -67,19 +91,21 @@ export default function Graph({ title, average, coords }: { title: string, avera
     } catch {}
   }, [cacheKey])
 
-  // fetch yearly series when coords change
+  // fetch yearly series from our API when coords change
   useEffect(() => {
     if (!coords) return
     setApiLoading(true)
-    setApiError('')
+    setApiError("")
     ;(async () => {
       try {
-        //actual API call lives here
-        const q = new URLSearchParams({ lat: String(coords.lat), long: String(coords.long) })
+        const q = new URLSearchParams({
+          lat: String(coords.lat),
+          long: String(coords.long),
+        })
         const res = await fetch(`/api/historical_temp?${q.toString()}`)
         const data = await res.json()
         if (!res.ok || data?.error) {
-          setApiError(data?.error || 'failed to fetch historical series')
+          setApiError(data?.error || "failed to fetch historical series")
           setYearly([])
           return
         }
@@ -95,8 +121,8 @@ export default function Graph({ title, average, coords }: { title: string, avera
             data: pts,
           }))
         }
-      } catch {
-        setApiError('unexpected error loading series')
+      } catch (e) {
+        setApiError("unexpected error loading series")
         setYearly([])
       } finally {
         setApiLoading(false)
@@ -104,50 +130,88 @@ export default function Graph({ title, average, coords }: { title: string, avera
     })()
   }, [coords, cacheKey])
 
-  //Matt's function where he averages the 5 years before and after the current year
   function movingAverage(series: number[], windowSize: number) {
     return series.map((_, idx, arr) => {
-      const start = Math.max(0, idx - Math.floor(windowSize / 2))
-      const end = Math.min(arr.length, idx + Math.floor(windowSize / 2))
-      const subset = arr.slice(start, end + 1)
-      return subset.reduce((a, b) => a + b, 0) / subset.length
-    })
+      const start = Math.max(0, idx - Math.floor(windowSize / 2));
+      const end = Math.min(arr.length, idx + Math.floor(windowSize / 2));
+      const subset = arr.slice(start, end + 1);
+      return subset.reduce((a, b) => a + b, 0) / subset.length;
+    });
   }
 
-  // if no coords, placeholder text
-  if (!coords) return <p className="text-sm text-gray-500">Pick a location to see the graph</p>
+  // choose the source, API city series if coords present, else CSV global series
+  const isCityMode = Boolean(coords)
 
-  const labels = yearly.map(p => p.year)
-  const mainSeries = yearly.map(p => p.avg)
-  const avgSeries = average ? movingAverage(mainSeries, 11) : []
+  const labels = isCityMode
+    ? yearly.map(p => p.year)
+    : csvData.map(row => row.Year)
+
+  const mainSeries = isCityMode
+    ? yearly.map(p => p.avg)
+    : csvData.map(row => row["Annual Average Temperature (F)"])
+
+  const avgSeries = average
+    ? movingAverage(mainSeries, 11)
+    : []
 
   return (
-    // front-end Matt things
     <div>
-      {apiLoading && <p>Loading yearly data</p>}
-      {!apiLoading && apiError && <p>{apiError}</p>}
-      {!apiLoading && !apiError && yearly.length > 0 && (
-        <Line
-          options={options}
-          data={{
-            labels,
-            datasets: [
-              {
-                label: 'Annual Average Temperature (F)',
-                data: mainSeries,
-                borderColor: 'rgba(229, 62, 62, 1)',
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              },
-              ...(average ? [{
-                label: '11-Year Moving Average',
-                data: avgSeries,
-                borderColor: 'rgba(62, 137, 229, 1)',
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }] : []),
-            ],
-          }}
-        />
+      {isCityMode ? (
+        <>
+          {apiLoading && <p>Loading yearly data</p>}
+          {!apiLoading && apiError && <p>{apiError}</p>}
+          {!apiLoading && !apiError && yearly.length > 0 && (
+            <Line
+              options={options}
+              data={{
+                labels,
+                datasets: [
+                  {
+                    label: 'Annual Average Temperature (F)',
+                    data: mainSeries,
+                    borderColor: 'rgba(229, 62, 62, 1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  },
+                  ...(average ? [{
+                    label: '11-Year Moving Average',
+                    data: avgSeries,
+                    borderColor: 'rgba(62, 137, 229, 1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  }] : []),
+                ],
+              }}
+            />
+          )}
+        </>
+      ) : (
+        // CSV fallback, unchanged view
+        <>
+          {csvLoading ? (
+            <p>Loading data...</p>
+          ) : (
+            <Line
+              options={options}
+              data={{
+                labels,
+                datasets: [
+                  {
+                    label: 'Annual Average Temperature (F)',
+                    data: mainSeries,
+                    borderColor: 'rgba(229, 62, 62, 1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  },
+                  ...(average ? [{
+                    label: '11-Year Moving Average',
+                    data: avgSeries,
+                    borderColor: 'rgba(62, 137, 229, 1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  }] : []),
+                ],
+              }}
+            />
+          )}
+        </>
       )}
     </div>
-  )
-}
+  );
+};
