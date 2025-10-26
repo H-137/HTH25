@@ -131,7 +131,7 @@ export default function Search({
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           className="p-2 border border-gray-300 rounded w-full"
-          placeholder="City"
+          placeholder="Find a city"
           value={city}
           onChange={(e) => setCity(e.target.value)}
         />

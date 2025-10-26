@@ -23,11 +23,22 @@ export default function Dashboard() {
       {/* HEADER */}
       <motion.h1
         layout
-        className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent mb-8 text-center"
+        className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent mb-3 text-center"
         transition={{ duration: 0.6 }}
       >
         Climate Delta
       </motion.h1>
+
+      {/* SUBTITLE */}
+      <motion.h2
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-lg md:text-xl text-gray-600 mb-8 text-center"
+      >
+        Learn about climate change in your city
+      </motion.h2>
 
       {/* SEARCH */}
       <motion.div
@@ -55,30 +66,55 @@ export default function Dashboard() {
             {/* Background Widget */}
             <Widget
               modalChildren={
-                <h1 className="text-lg font-bold text-center">
-                  Authors: Matthew Leopold, Indel Garcia, Alex Lehman, Brendan
-                  Reiners
-                </h1>
+                <>
+                  <img src="/stats.png" alt="Yale Climate Survey Data" />
+                  <a href="https://climatecommunication.yale.edu/visualizations-data/ycom-us/">
+                    Source: Yale Program on Climate Change Communication
+                  </a>
+                </>
               }
             >
               <h1 className="font-bold text-3xl bg-gradient-to-r from-yellow-400 to-yellow-200 bg-clip-text text-center text-transparent">
                 Background
               </h1>
               <p className="mt-3 text-gray-700 text-justify">
-                EXPLAIN WHAT CLIMATE DELTA IS AIMING TO DO, PROBLEM STATEMENT,
-                MOTIVATION, ETC.
+                While most people in the United States agree that global warming
+                is occurring and will harm future generations, many feel
+                detached from the actual effects. Furthermore, a strong majority
+                of Americans report that they rarely or never discuss global
+                warming, and most hear about it in the media less than once a
+                month. The goal of Climate Delta is to increase Americans’
+                awareness of how global warming is unfolding at the local level
+                and to empower them to take meaningful action today.
               </p>
+              <h1 className="text-lg font-bold text-center mt-4">
+                Authors: Matthew Leopold, Indel Garcia, Alex Lehman, Brendan
+                Reiners
+              </h1>
             </Widget>
 
             {/* Temperature Trends */}
-            <div className="h-[350px]">
+            <div className="min-h-[350px]">
               <Widget
                 modalChildren={
-                  <p>
-                    EXPLAIN WHERE THE TEMP DATA IS BEING SOURCED FROM EXPLAIN
-                    HOW THE MOVING AVERAGE WORKS AND WHY (SOLAR CYCLES) EXPLAIN
-                    THE AI PREDICTION AND THE PARAMETERS THAT ARE USED
-                  </p>
+                  <>
+                    <h2 className="font-bold text-xl mt-4">Data</h2>
+                    Our graph uses local historical temperature records from the
+                    National Oceanic and Atmospheric Administration (NOAA),
+                    accessed via the Open-Meteo API.
+                    <h2 className="font-bold text-xl mt-4">Analysis</h2>
+                    An 11-year moving average is applied to smooth short-term
+                    fluctuations and highlight long-term trends. This window
+                    length corresponds to the typical 11-year solar activity
+                    cycle, helping to reduce variability linked to
+                    sunspot-related climate influences.
+                    <h2 className="font-bold text-xl mt-4">Machine Learning</h2>
+                    A Gated Recurrent Unit (GRU) neural network was trained on
+                    historical NOAA temperature datasets to forecast future
+                    temperature trends. For localized predictions, the model
+                    uses average temperature inputs to project conditions 25
+                    years into the future.
+                  </>
                 }
               >
                 <h1 className="font-bold text-3xl bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-center text-transparent">
@@ -101,11 +137,15 @@ export default function Dashboard() {
               <Widget
                 modalChildren={
                   <p>
-                    EXPLAIN WHERE THE SATELLITE IMAGES ARE FROM - LANDSAT 5 and
-                    8. EXPLAIN HOW THE TIMELAPSE IS FORMED - COMPOSITION OF
-                    IMAGES FROM THE INITIAL LAUNCH OF LANDSAT 5 TO THE MOST
-                    RECENT IMAGES FROM LANDSAT 8 SOURCED FROM GOOGLE EARTH
-                    ENGINE.
+                    Satellite data are sourced from Landsat 5 and Landsat 8,
+                    composited to provide continuous coverage from 1984 to 2025.
+                    Using Google Earth Engine, imagery was aggregated by
+                    extracting a 10 km × 10 km region centered on the latitude
+                    and longitude corresponding to each local city. For
+                    consistency, images were selected between June 19th and
+                    August 30th of each year, ensuring similar seasonal
+                    conditions and filtering for low cloud cover. At most, one
+                    image per year was used to represent each location.
                   </p>
                 }
               >
@@ -121,12 +161,14 @@ export default function Dashboard() {
             </motion.div>
 
             {/* Storm Events */}
-            <Widget>
-              <Storm
-                key={`${location.lat}-${location.long}`}
-                location={location}
-              />
-            </Widget>
+            <div>
+              <Widget>
+                <Storm
+                  key={`${location.lat}-${location.long}`}
+                  location={location}
+                />
+              </Widget>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

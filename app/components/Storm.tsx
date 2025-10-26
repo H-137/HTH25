@@ -232,7 +232,10 @@ export default function Storm({ location }: StormProps) {
   if (error) return <p className="text-center text-red-600">{error}</p>;
 
   // Show the chart as soon as we have data, even if still "loading" (streaming)
-  if (!chartData) return null;
+  if (!chartData) return (
+    <div className="text-center bg-gray-100 p-4 rounded min-h-[200px]">
+    </div>
+  );
 
   return (
     <div className="w-full max-w-4xl p-4 mx-auto">
