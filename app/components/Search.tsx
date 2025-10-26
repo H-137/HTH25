@@ -79,21 +79,20 @@ export default function Search({ setLocation }: { setLocation: (location: { lat:
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <input className="p-2 border rounded w-full" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)}/>
-        <input list="state-options" className="p-2 border rounded w-28" placeholder="State, e.g., MA" value={stateInit} maxLength={2} onChange={(e) => setStateInit(e.target.value.toUpperCase())}/>
+        <input className="p-2 border border-gray-300 rounded w-full" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)}/>
+        <input list="state-options" className="p-2 border border-gray-300 rounded w-28" placeholder="State, e.g., MA" value={stateInit} maxLength={2} onChange={(e) => setStateInit(e.target.value.toUpperCase())}/>
         <datalist id="state-options">
           {STATE_LIST.map((s) => (
             <option key={s.abbr} value={s.abbr} label={s.label} />
           ))}
         </datalist>
 
-        <button type="submit" className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">Search</button>
+        <button type="submit" className="px-4 py-2 rounded bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none active:scale-95">Search</button>
       </form>
 
       {fetchedPlace && (
-        <div className="mt-3 text-sm">
+        <div className="mt-3 text-sm text-center text-gray-700">
           <p>{isClosestMatch ? "Closest match:" : "Results for"} {fetchedPlace}</p>
-          {coords && <p>lat: {coords.lat}, long: {coords.long}</p>}
         </div>
       )}
     </div>

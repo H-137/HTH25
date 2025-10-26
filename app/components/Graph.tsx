@@ -22,7 +22,6 @@ ChartJS.register(
   Legend
 );
 
-// NEW: props now accept optional coords
 type Coords = { lat: number, long: number }
 export default function Graph({ title, average, coords }: { title: string, average: boolean, coords?: Coords }) {
   type ClimateDataRow = {
@@ -34,12 +33,12 @@ export default function Graph({ title, average, coords }: { title: string, avera
   const [csvData, setCsvData] = useState<ClimateDataRow[]>([]);
   const [csvLoading, setCsvLoading] = useState(true);
 
-  // NEW: state for API-driven yearly data
+  // API-driven yearly data
   type YearlyPoint = { year: number, avg: number }
-  const [yearly, setYearly] = useState<YearlyPoint[]>([])               // NEW
-  const [range, setRange] = useState<{ start: string, end: string }>()   // NEW
-  const [apiLoading, setApiLoading] = useState(false)                    // NEW
-  const [apiError, setApiError] = useState<string>("")                   // NEW
+  const [yearly, setYearly] = useState<YearlyPoint[]>([])
+  const [range, setRange] = useState<{ start: string, end: string }>()
+  const [apiLoading, setApiLoading] = useState(false)
+  const [apiError, setApiError] = useState<string>("")
 
   const options = {
     responsive: true,
@@ -47,13 +46,13 @@ export default function Graph({ title, average, coords }: { title: string, avera
       legend: { position: 'top' as const },
       title: {
         display: true,
-        // NEW: show range when we are plotting the city series
+        // show range when we are plotting the city series
         text: range ? `${title}  •  ${range.start} to ${range.end}` : title,
       },
     },
   };
 
-  // Fallback CSV load, runs once
+  // fallback CSV load, runs once
   useEffect(() => {
     if (coords) return  // NEW: skip CSV when we have coords
     Papa.parse('/static/temps.csv', {
@@ -69,15 +68,15 @@ export default function Graph({ title, average, coords }: { title: string, avera
         setCsvLoading(false);
       }
     });
-  }, [coords]); // CHANGED: depend on coords to skip
+  }, [coords]); // depend on coords to skip
 
-  // NEW: localStorage cache key for the given coords
+  // localStorage cache key for the given coords
   const cacheKey = useMemo(() => {
     if (!coords) return null
     return `yearly-temp:${coords.lat.toFixed(3)},${coords.long.toFixed(3)}`
   }, [coords])
 
-  // NEW: try read cache first
+  // try read cache first
   useEffect(() => {
     if (!cacheKey) return
     try {
@@ -92,7 +91,7 @@ export default function Graph({ title, average, coords }: { title: string, avera
     } catch {}
   }, [cacheKey])
 
-  // NEW: fetch yearly series from our API when coords change
+  // fetch yearly series from our API when coords change
   useEffect(() => {
     if (!coords) return
     setApiLoading(true)
@@ -140,8 +139,8 @@ export default function Graph({ title, average, coords }: { title: string, avera
     });
   }
 
-  // NEW: choose the source, API city series if coords present, else CSV global series
-  const isCityMode = Boolean(coords)  // NEW
+  // choose the source, API city series if coords present, else CSV global series
+  const isCityMode = Boolean(coords)
 
   const labels = isCityMode
     ? yearly.map(p => p.year)

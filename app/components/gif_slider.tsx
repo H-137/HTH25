@@ -1,13 +1,15 @@
-'use client';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+"use client";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 interface ImageData {
   img: HTMLImageElement;
   year: number;
 }
 
-export default function ImageSlider(location: { lat: number; long: number } | null) {
+export default function ImageSlider(
+  location: { lat: number; long: number } | null
+) {
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,9 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
     const fetchImages = async () => {
       setLoading(true);
       try {
-        const metaRes = await axios.get(`/api/gee?lat=${target.lat}&lng=${target.long}&mode=meta`);
+        const metaRes = await axios.get(
+          `/api/gee?lat=${target.lat}&lng=${target.long}&mode=meta`
+        );
         const { timestamps } = metaRes.data;
 
         const loadedImages: ImageData[] = [];
@@ -29,7 +33,7 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
         timestamps.forEach((ts: string) => {
           axios
             .get(`/api/gee?ts=${ts}&lat=${target.lat}&lng=${target.long}`)
-            .then(res => {
+            .then((res) => {
               const image = new Image();
               image.src = res.data.url;
               image.onload = () => {
@@ -41,10 +45,10 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
                 }
               };
             })
-            .catch(err => console.error('Thumbnail fetch failed:', err));
+            .catch((err) => console.error("Thumbnail fetch failed:", err));
         });
       } catch (err) {
-        console.error('Metadata fetch failed:', err);
+        console.error("Metadata fetch failed:", err);
         setLoading(false);
       }
     };
@@ -56,7 +60,7 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
     if (loading || images.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % images.length);
+      setCurrentIndex((prev) => (prev + 1) % images.length);
     }, 200);
 
     return () => clearInterval(interval);
@@ -66,23 +70,30 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
     setCurrentIndex(parseInt(e.target.value));
   };
 
-  if (loading && images.length === 0) return <p>Loading images...</p>;
-  if (images.length === 0) return <p>No images found.</p>;
+  // if (loading && images.length === 0) return <p>Loading images...</p>;
+  if (images.length === 0 && !loading) return <p>No images found.</p>;
 
   return (
     <div className="p-4 flex flex-col items-center">
-      <div className="w-[400px] h-[400px] border border-gray-300 mb-4 relative">
-        {images[currentIndex] && (
+      <div className="w-[400px] h-[400px] border border-gray-300 mb-4 relative overflow-hidden">
+        {images[currentIndex] ? (
           <img
             src={images[currentIndex].img.src}
             alt={`Year ${images[currentIndex].year}`}
             className="w-full h-full object-cover transition-opacity duration-500"
           />
-)}
+        ) : (
+          // Skeleton loader
+          <div className="w-full h-full bg-gray-300 animate-pulse relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 transform -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+          </div>
+        )}
 
-        { images[currentIndex] && (<p className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 p-1 rounded">
-          Year: {images[currentIndex].year}
-        </p>) }
+        {images[currentIndex] && (
+          <p className="absolute bottom-2 left-2 text-white bg-black bg-opacity-50 p-1 rounded">
+            Year: {images[currentIndex].year}
+          </p>
+        )}
       </div>
 
       <input
@@ -92,6 +103,8 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
         value={currentIndex}
         onChange={handleSliderChange}
         className="w-full transition-all duration-300 ease-in-out"
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
       />
     </div>
   );
