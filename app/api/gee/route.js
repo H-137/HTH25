@@ -118,58 +118,30 @@ let images = l5.merge(l8);
     maxPixels: 1e9
   });
 
-const minVals = [
-  stats.getNumber('SR_B3_p2'),
-  stats.getNumber('SR_B2_p2'),
-  stats.getNumber('SR_B1_p2')
-];
+  const minVals = [
+    stats.getNumber('SR_B3_p2'),
+    stats.getNumber('SR_B2_p2'),
+    stats.getNumber('SR_B1_p2')
+  ];
 
-const maxVals = [
-  stats.getNumber('SR_B3_p98'),
-  stats.getNumber('SR_B2_p98'),
-  stats.getNumber('SR_B1_p98')
-];
+  const maxVals = [
+    stats.getNumber('SR_B3_p98'),
+    stats.getNumber('SR_B2_p98'),
+    stats.getNumber('SR_B1_p98')
+  ];
 
-// Stretch bands individually and cast to uint8
-const scaled = img.select(['SR_B3','SR_B2','SR_B1'])
-  .subtract(ee.Image.constant(minVals))
-  .divide(ee.Image.constant(maxVals).subtract(ee.Image.constant(minVals)))
-  .multiply(255)
-  .clamp(0, 255)
-  .toUint8(); // integer 0–255
+  const scaled = img.select(['SR_B3','SR_B2','SR_B1'])
+    .subtract(ee.Image.constant(minVals))
+    .divide(ee.Image.constant(maxVals).subtract(ee.Image.constant(minVals)))
+    .multiply(255)
+    .clamp(0, 255)
+    .toUint8();
 
-const thumb = scaled.getDownloadURL({
-  region: region,
-  scale: 30,
-  format: 'png'
-});
-
-
-      // const visParams = {
-      //   bands: ['SR_B3', 'SR_B2', 'SR_B1'],
-      //   min: [
-      //     stats.getNumber('SR_B3_p2'),
-      //     stats.getNumber('SR_B2_p2'),
-      //     stats.getNumber('SR_B1_p2')
-      //   ],
-      //   max: [
-      //     stats.getNumber('SR_B3_p98'),
-      //     stats.getNumber('SR_B2_p98'),
-      //     stats.getNumber('SR_B1_p98')
-      //   ],
-      //   gamma: 1.2
-      // };
-
-      // const thumb = img.getThumbURL({
-      //   region: region,
-      //   scale: 30,       // native 30m Landsat 5 resolution
-      //   format: 'png',
-      //   bands: ['SR_B3','SR_B2','SR_B1'],
-      //   ...visParams
-      // });
-
-
-
+  const thumb = await scaled.getDownloadURL({
+    region: region,
+    scale: 30,
+    format: 'png'
+  });
       return NextResponse.json({ ts, year, url: thumb }, { status: 200 });
     }
 

@@ -10,7 +10,7 @@ interface ImageData {
 export default function ImageSlider(location: { lat: number; long: number } | null) {
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Fetch images when location changes
   useEffect(() => {
@@ -23,37 +23,45 @@ export default function ImageSlider(location: { lat: number; long: number } | nu
         const metaRes = await axios.get(`/api/gee?lat=${target.lat}&lng=${target.long}&mode=meta`);
         const { timestamps } = metaRes.data;
 
-        for (const ts of timestamps) {
+        const loadedImages: ImageData[] = [];
+        let loadedCount = 0;
+
+        timestamps.forEach((ts: string) => {
           axios
             .get(`/api/gee?ts=${ts}&lat=${target.lat}&lng=${target.long}`)
             .then(res => {
               const image = new Image();
               image.src = res.data.url;
               image.onload = () => {
-                setImages(prev => [...prev, { img: image, year: res.data.year }].sort((a, b) => a.year - b.year));
+                loadedImages.push({ img: image, year: res.data.year });
+                loadedCount++;
+                if (loadedCount === timestamps.length) {
+                  // All images are loaded
+                  setImages(loadedImages.sort((a, b) => a.year - b.year));
+                  setLoading(false);
+                }
               };
             })
             .catch(err => console.error('Thumbnail fetch failed:', err));
-        }
+        });
       } catch (err) {
         console.error('Metadata fetch failed:', err);
+        setLoading(false);
       }
-      setLoading(false);
     };
-
     fetchImages();
   }, [location]);
 
-  // Auto-cycle through images at 2 FPS
+  // Start looping only after loading is complete
   useEffect(() => {
-    if (images.length === 0) return;
+    if (loading || images.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % images.length); // loop back to 0
-    }, 500); // 500ms = 2 FPS
+      setCurrentIndex(prev => (prev + 1) % images.length);
+    }, 200);
 
-    return () => clearInterval(interval); // cleanup on unmount or images change
-  }, [images]);
+    return () => clearInterval(interval);
+  }, [loading, images]);
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentIndex(parseInt(e.target.value));
