@@ -1,3 +1,10 @@
+## Authors:
+Matt Leopold, Indel Garcia, Alex Lehman
+
+## Research Assistants:
+
+Brendan Reiners
+
 # Climate Delta
 
 Climate Delta is an interactive climate insights application that helps communities explore how local conditions have changed over time and how they are projected to evolve. By combining historical environmental data, real-time satellite imagery, and machine learning forecasts, the app translates complex climate information into intuitive visuals for every U.S. county.
