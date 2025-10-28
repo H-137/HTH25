@@ -58,4 +58,5 @@ Climate Delta relies on authoritative data providers such as the National Weathe
 We welcome contributions and feedback that help us improve the way people understand climate change at the local level.
 
 ## Note: 
+
 Project deployment is not fully live at this time, but the codebase is available for review and local testing. Keys and sensitive information have been omitted for security, and certain features may be disabled in this version.
